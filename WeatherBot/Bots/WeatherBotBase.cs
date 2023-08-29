@@ -1,9 +1,14 @@
-﻿namespace WeatherBot.Bots;
+﻿using WeatherBot.Models;
+using WeatherBot.WeatherServices;
+
+namespace WeatherBot.Bots;
 
 public abstract class WeatherBotBase : IWeatherBot
 {
     public bool Enabled { get; set; }
     public string Message { get; set; } = string.Empty;
+
+    private IDisposable? _unsubscriber;
 
     public virtual void PrintActivationMessage()
     {
@@ -13,18 +18,22 @@ public abstract class WeatherBotBase : IWeatherBot
         Console.WriteLine();
     }
 
+    public virtual void SubscribeIfEnabled(IWeatherServices provider)
+    {
+        if (Enabled)
+            _unsubscriber = provider.Subscribe(this);
+    }
+
+
     public virtual void OnCompleted()
     {
-        throw new NotImplementedException();
+        _unsubscriber?.Dispose();
     }
 
     public virtual void OnError(Exception error)
     {
-        throw new NotImplementedException();
+        throw error;
     }
 
-    public virtual void OnNext(object value)
-    {
-        throw new NotImplementedException();
-    }
+    public abstract void OnNext(WeatherData weatherData);
 }

@@ -1,9 +1,14 @@
-﻿namespace WeatherBot.Bots;
+﻿using WeatherBot.Models;
+using WeatherBot.WeatherServices;
 
-public interface IWeatherBot : IObserver<object>
+namespace WeatherBot.Bots;
+
+public interface IWeatherBot : IObserver<WeatherData>
 {
     public bool Enabled { get; set; }
     public string Message { get; set; }
 
     protected void PrintActivationMessage();
+
+    void SubscribeIfEnabled(IWeatherServices provider);
 }
