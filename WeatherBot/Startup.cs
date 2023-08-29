@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using WeatherBot.Bots;
+using WeatherBot.WeatherParsers;
 
 
 namespace WeatherBot;
@@ -33,6 +34,7 @@ public static class Startup
         IServiceCollection serviceCollection = new ServiceCollection();
 
         ConfigureBotServices(serviceCollection);
+        ConfigureParserServices(serviceCollection);
 
         return serviceCollection
             .BuildServiceProvider();
@@ -50,5 +52,18 @@ public static class Startup
             .AddSingleton(rainBot ?? new RainBot())
             .AddSingleton(snowBot ?? new SnowBot())
             .AddSingleton(sunBot ?? new SunBot());
+    }
+
+    private static void ConfigureParserServices(IServiceCollection serviceCollection)
+    {
+        serviceCollection
+            .AddSingleton<JsonWeatherParser>()
+            .AddSingleton<XmlWeatherParser>()
+            .AddSingleton<List<IWeatherParser>>(serviceProvider => new List<IWeatherParser>
+            {
+                serviceProvider.GetService<JsonWeatherParser>(),
+                serviceProvider.GetService<XmlWeatherParser>()
+            })
+            .AddSingleton<IFormatRecognizer, FormatRecognizer>();
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using System.Text.RegularExpressions;
 using System.Xml.Serialization;
 using FluentResults;
 using WeatherBot.Models;
@@ -26,5 +27,11 @@ public class XmlWeatherParser : IWeatherParser
         return weatherData is null
             ? Result.Fail(errorMessage)
             : Result.Ok(weatherData);
+    }
+
+    public bool IsMatchingFormat(string input)
+    {
+        const string xmlPattern = @"^\s*<(\s|.)*>\s*$";
+        return Regex.IsMatch(input, xmlPattern);
     }
 }

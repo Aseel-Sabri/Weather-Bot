@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+using System.Text.RegularExpressions;
 using FluentResults;
 using WeatherBot.Models;
 
@@ -12,5 +13,11 @@ public class JsonWeatherParser : IWeatherParser
         return weatherData is null
             ? Result.Fail("Invalid JSON Format")
             : Result.Ok(weatherData);
+    }
+
+    public bool IsMatchingFormat(string input)
+    {
+        const string jsonPattern = @"^\s*\{(\s|.)*\}\s*$";
+        return Regex.IsMatch(input, jsonPattern);
     }
 }
