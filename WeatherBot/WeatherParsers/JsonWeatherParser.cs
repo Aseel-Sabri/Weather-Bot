@@ -9,10 +9,20 @@ public class JsonWeatherParser : IWeatherParser
 {
     public Result<WeatherData> ParseWeatherInfo(string weatherRawData)
     {
-        var weatherData = JsonSerializer.Deserialize<WeatherData>(weatherRawData);
-        return weatherData is null
-            ? Result.Fail("Invalid JSON Format")
-            : Result.Ok(weatherData);
+        const string invalidJsonFormat = "Invalid JSON Format";
+
+        try
+        {
+            var weatherData = JsonSerializer.Deserialize<WeatherData>(weatherRawData);
+
+            return weatherData is null
+                ? Result.Fail(invalidJsonFormat)
+                : Result.Ok(weatherData);
+        }
+        catch (Exception e)
+        {
+            return Result.Fail(invalidJsonFormat);
+        }
     }
 
     public bool IsMatchingFormat(string input)
