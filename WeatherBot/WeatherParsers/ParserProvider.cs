@@ -8,7 +8,7 @@ public class ParserProvider : IParserProvider
 
     public ParserProvider(IEnumerable<IWeatherParser> weatherParsers)
     {
-        _weatherParsers = weatherParsers;
+        _weatherParsers = weatherParsers.ToList();
     }
 
     public Result<IWeatherParser> GetSuitableParser(string input)

@@ -34,8 +34,6 @@ public static class Startup
         serviceCollection
             .AddSingleton<IWeatherParser, JsonWeatherParser>()
             .AddSingleton<IWeatherParser, XmlWeatherParser>()
-            .AddSingleton<List<IWeatherParser>>(serviceProvider =>
-                serviceProvider.GetServices<IWeatherParser>().ToList())
             .AddSingleton<IParserProvider, ParserProvider>();
     }
 
