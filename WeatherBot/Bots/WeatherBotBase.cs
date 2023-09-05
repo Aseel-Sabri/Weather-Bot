@@ -5,22 +5,21 @@ namespace WeatherBot.Bots;
 
 public abstract class WeatherBotBase : IWeatherBot
 {
-    public bool Enabled { get; set; }
-    public string Message { get; set; } = string.Empty;
-
     private IDisposable? _unsubscriber;
+
+    public virtual IWeatherBotOptions Options { get; set; }
 
     public virtual void PrintActivationMessage()
     {
         Console.WriteLine($"{GetType().Name} activated!");
         Console.Write($"{GetType().Name}: ");
-        Console.WriteLine(Message);
+        Console.WriteLine(Options.Message);
         Console.WriteLine();
     }
 
     public virtual void SubscribeIfEnabled(IWeatherServices provider)
     {
-        if (Enabled)
+        if (Options.Enabled)
             _unsubscriber = provider.Subscribe(this);
     }
 

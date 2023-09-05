@@ -10,6 +10,8 @@ namespace WeatherBot;
 
 public static class Startup
 {
+    private const string _configFile = "appsettings.json";
+
     public static IServiceProvider ConfigureServices()
     {
         IServiceCollection serviceCollection = new ServiceCollection();
@@ -17,6 +19,7 @@ public static class Startup
         ConfigureParserServices(serviceCollection);
         ConfigureUserInterfaceServices(serviceCollection);
         ConfigureWeatherServices(serviceCollection);
+        ConfigureBotsOptions(serviceCollection);
         ConfigureBotServices(serviceCollection);
 
         IServiceProvider serviceProvider = serviceCollection.BuildServiceProvider();
@@ -45,38 +48,29 @@ public static class Startup
 
     private static void ConfigureBotServices(IServiceCollection serviceCollection)
     {
-        IConfiguration config = LoadConfigurations();
-
-        var rainBot = config.GetSection("RainBot").Get<RainBot>() ?? new RainBot();
-        var snowBot = config.GetSection("SnowBot").Get<SnowBot>() ?? new SnowBot();
-        var sunBot = config.GetSection("SunBot").Get<SunBot>() ?? new SunBot();
-
         serviceCollection
-            .AddSingleton<IWeatherBot>(rainBot)
-            .AddSingleton<IWeatherBot>(snowBot)
-            .AddSingleton<IWeatherBot>(sunBot);
+            .AddSingleton<IWeatherBot, RainBot>()
+            .AddSingleton<IWeatherBot, SnowBot>()
+            .AddSingleton<IWeatherBot, SunBot>();
     }
 
-
-    private static string GetConfigurationFilePath()
+    private static void ConfigureBotsOptions(IServiceCollection serviceCollection)
     {
-        var fileName = "config.json";
-        var filePath =
-            Path.Combine(Directory.GetParent(Directory.GetCurrentDirectory()).Parent.Parent.FullName,
-                fileName);
-        return filePath;
-    }
-
-    private static IConfiguration LoadConfigurations()
-    {
-        var filePath = GetConfigurationFilePath();
-
         var builder = new ConfigurationBuilder();
+
         builder.SetBasePath(Directory.GetCurrentDirectory())
-            .AddJsonFile(filePath, optional: false, reloadOnChange: true);
+            .AddJsonFile(_configFile, optional: false, reloadOnChange: true);
 
         IConfiguration config = builder.Build();
-        return config;
+
+        var rainBotOptions = config.GetSection(RainBotOptions.RainBot).Get<RainBotOptions>() ?? new RainBotOptions();
+        serviceCollection.AddSingleton<RainBotOptions>(rainBotOptions);
+
+        var snowBotOptions = config.GetSection(SnowBotOptions.SnowBot).Get<SnowBotOptions>() ?? new SnowBotOptions();
+        serviceCollection.AddSingleton<SnowBotOptions>(snowBotOptions);
+
+        var sunBotOptions = config.GetSection(SunBotOptions.SunBot).Get<SunBotOptions>() ?? new SunBotOptions();
+        serviceCollection.AddSingleton<SunBotOptions>(sunBotOptions);
     }
 
 

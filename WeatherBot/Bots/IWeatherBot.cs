@@ -5,8 +5,7 @@ namespace WeatherBot.Bots;
 
 public interface IWeatherBot : IObserver<WeatherData>
 {
-    public bool Enabled { get; set; }
-    public string Message { get; set; }
+    IWeatherBotOptions Options { get; set; }
 
     protected void PrintActivationMessage();
 
