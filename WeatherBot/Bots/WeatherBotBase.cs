@@ -26,7 +26,7 @@ public abstract class WeatherBotBase : IWeatherBot
 
     public virtual void OnCompleted()
     {
-        _unsubscriber?.Dispose();
+        // Do Nothing
     }
 
     public virtual void OnError(Exception error)
