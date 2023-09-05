@@ -6,27 +6,28 @@ namespace WeatherBot.WeatherServices;
 
 public class WeatherServices : IWeatherServices
 {
-    private readonly IFormatRecognizer _formatRecognizer;
+    private readonly IParserProvider _parserProvider;
     private readonly HashSet<IObserver<WeatherData>> _subscribedWeatherBots = new();
 
-    public WeatherServices(IFormatRecognizer formatRecognizer)
+    public WeatherServices(IParserProvider parserProvider)
     {
-        _formatRecognizer = formatRecognizer;
+        _parserProvider = parserProvider;
     }
 
     public Result UpdateWeather(string weatherRawData)
     {
-        var parserResult = _formatRecognizer.GetSuitableParser(weatherRawData);
-        if (parserResult.IsFailed)
-            return parserResult.ToResult();
+        var getParserResult = _parserProvider.GetSuitableParser(weatherRawData);
+        if (getParserResult.IsFailed)
+            return getParserResult.ToResult();
 
-        var weatherResult = parserResult.Value.ParseWeatherInfo(weatherRawData);
-        if (weatherResult.IsFailed)
-            return weatherResult.ToResult();
+        var parser = getParserResult.Value;
+        var weatherDataResult = parser.ParseWeatherInfo(weatherRawData);
+        if (weatherDataResult.IsFailed)
+            return weatherDataResult.ToResult();
 
         foreach (var weatherBot in _subscribedWeatherBots)
         {
-            weatherBot.OnNext(weatherResult.Value);
+            weatherBot.OnNext(weatherDataResult.Value);
         }
 
         return Result.Ok();

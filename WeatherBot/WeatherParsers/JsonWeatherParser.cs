@@ -25,7 +25,7 @@ public class JsonWeatherParser : IWeatherParser
         }
     }
 
-    public bool IsMatchingFormat(string input)
+    public bool IsSupportedFormat(string input)
     {
         const string jsonPattern = @"^\s*\{(\s|.)*\}\s*$";
         return Regex.IsMatch(input, jsonPattern);

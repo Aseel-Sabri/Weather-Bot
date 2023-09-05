@@ -2,7 +2,7 @@
 
 namespace WeatherBot.WeatherParsers;
 
-public interface IFormatRecognizer
+public interface IParserProvider
 {
     Result<IWeatherParser> GetSuitableParser(string input);
 }

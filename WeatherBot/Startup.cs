@@ -36,7 +36,7 @@ public static class Startup
             .AddSingleton<IWeatherParser, XmlWeatherParser>()
             .AddSingleton<List<IWeatherParser>>(serviceProvider =>
                 serviceProvider.GetServices<IWeatherParser>().ToList())
-            .AddSingleton<IFormatRecognizer, FormatRecognizer>();
+            .AddSingleton<IParserProvider, ParserProvider>();
     }
 
     private static void ConfigureWeatherServices(IServiceCollection serviceCollection)

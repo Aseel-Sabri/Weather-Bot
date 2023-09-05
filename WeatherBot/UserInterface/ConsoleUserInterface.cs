@@ -1,4 +1,5 @@
 ﻿using WeatherBot.WeatherServices;
+using static System.StringComparison;
 
 namespace WeatherBot.UserInterface;
 
@@ -45,8 +46,7 @@ public class ConsoleUserInterface : IUserInterface
 
     private bool IsQuitCommand(string input)
     {
-        const StringComparison stringComparisionCulture = StringComparison.CurrentCultureIgnoreCase;
-        return input.Equals("q", stringComparisionCulture)
-               || input.Equals("quit", stringComparisionCulture);
+        return input.Equals("q", CurrentCultureIgnoreCase)
+               || input.Equals("quit", CurrentCultureIgnoreCase);
     }
 }

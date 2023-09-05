@@ -28,7 +28,7 @@ public class XmlWeatherParser : IWeatherParser
         }
     }
 
-    public bool IsMatchingFormat(string input)
+    public bool IsSupportedFormat(string input)
     {
         const string xmlPattern = @"^\s*<(\s|.)*>\s*$";
         return Regex.IsMatch(input, xmlPattern);
