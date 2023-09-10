@@ -12,107 +12,124 @@ public class WeatherServicesTests
 {
     [Theory]
     [AutoMoqData]
-    public void ShouldFailWhenNoSuitableParser(
+    public void Should_Fail_When_NoSuitableParser(
         string errorMessage,
         [Frozen] Mock<IParserProvider> mockParserProvider,
         WeatherServices.WeatherServices weatherServices)
     {
+        // Arrange
         mockParserProvider
-            .Setup(p => p.GetSuitableParser(It.IsAny<string>()))
+            .Setup(parserProvider => parserProvider.GetSuitableParser(It.IsAny<string>()))
             .Returns(Result.Fail(errorMessage));
 
+        // Act
         var result = weatherServices.UpdateWeather(It.IsAny<string>());
+
+        // Assert
         result.IsFailed.Should().BeTrue();
-        result.Errors.Should().Contain(x => x.Message == errorMessage);
+        result.Errors.Should().Contain(error => error.Message == errorMessage);
     }
 
     [Theory]
     [AutoMoqData]
-    public void ShouldFailWhenParsingFails(
+    public void Should_Fail_When_ParsingFails(
         string errorMessage,
         Mock<IWeatherParser> mockWeatherParser,
         [Frozen] Mock<IParserProvider> mockParserProvider,
         WeatherServices.WeatherServices weatherServices)
     {
+        // Arrange
         mockParserProvider
-            .Setup(p => p.GetSuitableParser(It.IsAny<string>()))
+            .Setup(parserProvider => parserProvider.GetSuitableParser(It.IsAny<string>()))
             .Returns(Result.Ok(mockWeatherParser.Object));
 
         mockWeatherParser
-            .Setup(p => p.ParseWeatherInfo(It.IsAny<string>()))
+            .Setup(parser => parser.ParseWeatherInfo(It.IsAny<string>()))
             .Returns(Result.Fail(errorMessage));
 
+        // Act
         var result = weatherServices.UpdateWeather(It.IsAny<string>());
+
+        // Assert
         result.IsFailed.Should().BeTrue();
-        result.Errors.Should().Contain(x => x.Message == errorMessage);
+        result.Errors.Should().Contain(error => error.Message == errorMessage);
     }
 
 
     [Theory]
     [AutoMoqData]
-    public void ShouldNotifySubscribedBotsWhenParsingSucceed(
+    public void Should_NotifySubscribedBots_When_ParsingSucceeds(
         WeatherData weatherData,
         List<IWeatherBot> weatherBots,
         Mock<IWeatherParser> mockWeatherParser,
         [Frozen] Mock<IParserProvider> mockParserProvider,
         WeatherServices.WeatherServices weatherServices)
     {
+        // Arrange
         weatherBots.ForEach(weatherBot => weatherServices.Subscribe(weatherBot));
 
         mockParserProvider
-            .Setup(p => p.GetSuitableParser(It.IsAny<string>()))
+            .Setup(parserProvider => parserProvider.GetSuitableParser(It.IsAny<string>()))
             .Returns(Result.Ok(mockWeatherParser.Object));
 
         mockWeatherParser
-            .Setup(p => p.ParseWeatherInfo(It.IsAny<string>()))
+            .Setup(parser => parser.ParseWeatherInfo(It.IsAny<string>()))
             .Returns(Result.Ok(weatherData));
 
+        // Act
         weatherServices.UpdateWeather(It.IsAny<string>());
 
+        // Assert
         weatherBots.ForEach(weatherBot =>
-            Mock.Get(weatherBot).Verify(p => p.OnNext(weatherData), Times.Once));
+            Mock.Get(weatherBot).Verify(bot => bot.OnNext(weatherData), Times.Once));
     }
 
 
     [Theory]
     [AutoMoqData]
-    public void ShouldReturnOkWhenParsingSucceed(
+    public void Should_ReturnOk_When_ParsingSucceeds(
         Mock<IWeatherParser> mockWeatherParser,
         [Frozen] Mock<IParserProvider> mockParserProvider,
         WeatherServices.WeatherServices weatherServices)
     {
+        // Arrange
         mockParserProvider
-            .Setup(p => p.GetSuitableParser(It.IsAny<string>()))
+            .Setup(parserProvider => parserProvider.GetSuitableParser(It.IsAny<string>()))
             .Returns(Result.Ok(mockWeatherParser.Object));
 
         mockWeatherParser
-            .Setup(p => p.ParseWeatherInfo(It.IsAny<string>()))
+            .Setup(parser => parser.ParseWeatherInfo(It.IsAny<string>()))
             .Returns(Result.Ok(It.IsAny<WeatherData>()));
 
+        // Act
         var result = weatherServices.UpdateWeather(It.IsAny<string>());
 
+        // Assert
         result.IsSuccess.Should().BeTrue();
     }
 
     [Theory]
     [AutoMoqData]
-    public void ShouldPassSameWeatherRawDataToParserProviderAndParser(
+    public void Should_PassSameInputToParserProviderAndParser(
         string weatherRawData,
         Mock<IWeatherParser> mockWeatherParser,
         [Frozen] Mock<IParserProvider> mockParserProvider,
         WeatherServices.WeatherServices weatherServices)
     {
+        // Arrange
         mockParserProvider
-            .Setup(p => p.GetSuitableParser(It.IsAny<string>()))
+            .Setup(parserProvider => parserProvider.GetSuitableParser(It.IsAny<string>()))
             .Returns(Result.Ok(mockWeatherParser.Object));
 
         mockWeatherParser
-            .Setup(p => p.ParseWeatherInfo(It.IsAny<string>()))
+            .Setup(parser => parser.ParseWeatherInfo(It.IsAny<string>()))
             .Returns(Result.Ok(It.IsAny<WeatherData>()));
 
-        var result = weatherServices.UpdateWeather(weatherRawData);
+        // Act
+        weatherServices.UpdateWeather(weatherRawData);
 
-        mockParserProvider.Verify(p => p.GetSuitableParser(weatherRawData));
-        mockWeatherParser.Verify(p => p.ParseWeatherInfo(weatherRawData));
+        // Assert
+        mockParserProvider.Verify(parserProvider => parserProvider.GetSuitableParser(weatherRawData));
+        mockWeatherParser.Verify(parser => parser.ParseWeatherInfo(weatherRawData));
     }
 }

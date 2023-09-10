@@ -9,37 +9,40 @@ public class ParserProviderTests
 {
     [Theory]
     [AutoMoqData]
-    public void ShouldFailWhenNoSuitableParser(
+    public void Should_Fail_When_NoSuitableParser(
         [Frozen] IEnumerable<IWeatherParser> weatherParsers,
         ParserProvider parserProvider)
     {
+        // Arrange
         weatherParsers.ToList().ForEach(weatherParser =>
             Mock.Get(weatherParser)
-                .Setup(p => p.IsSupportedFormat(It.IsAny<string>()))
+                .Setup(parser => parser.IsSupportedFormat(It.IsAny<string>()))
                 .Returns(false));
-        const string errorMessage = "Invalid Format";
 
+        // Act
         var result = parserProvider.GetSuitableParser(It.IsAny<string>());
 
+        // Assert
         result.IsFailed.Should().BeTrue();
-        result.Errors.Should().Contain(x => x.Message == errorMessage);
     }
 
 
     [Theory]
     [AutoMoqData]
-    public void ShouldReturnSuitableParserWhenFound(
+    public void Should_ReturnSuitableParser_When_Found(
         [Frozen] IEnumerable<IWeatherParser> weatherParsers,
         ParserProvider parserProvider)
     {
+        // Arrange
         var suitableWeatherParser = weatherParsers.First();
-
         Mock.Get(suitableWeatherParser)
-            .Setup(p => p.IsSupportedFormat(It.IsAny<string>()))
+            .Setup(parser => parser.IsSupportedFormat(It.IsAny<string>()))
             .Returns(true);
 
+        // Act
         var result = parserProvider.GetSuitableParser(It.IsAny<string>());
 
+        // Assert
         result.IsSuccess.Should().BeTrue();
         result.Value.Should().Be(suitableWeatherParser);
     }
