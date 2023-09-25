@@ -1,3 +1,16 @@
-﻿// See https://aka.ms/new-console-template for more information
+﻿using Microsoft.Extensions.DependencyInjection;
+using WeatherBot.UserInterface;
 
-Console.WriteLine("Hello, World!");
+
+namespace WeatherBot
+{
+    internal class Program
+    {
+        static void Main(string[] args)
+        {
+            var serviceProvider = Startup.ConfigureServices();
+            var userInterface = serviceProvider.GetRequiredService<IUserInterface>();
+            userInterface.Run();
+        }
+    }
+}
